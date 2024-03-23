@@ -1,4 +1,4 @@
-from scipy.interpolate import lagrange, CubicSpline, interp1d,RegularGridInterpolator,RectBivariateSpline
+from scipy.interpolate import lagrange, CubicSpline, interp1d,RegularGridInterpolator,RectBivariateSpline, griddata
 from math import sin, tanh, exp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,18 +55,20 @@ for i in range(len(y_originalFunction)):
 
 
 
-
-fig, ax = plt.subplots()
-ax.set_xlabel('Coordenadas interpoladas')
-ax.set_ylabel('Error absoluto')
-
-
-ax.plot(x_interpolate, Error_lagrange, linestyle='--', label="Lagrange")
-ax.plot(x_interpolate, Error_Spline, linestyle='--', label="Interpolador cubico")
-ax.plot(x_interpolate, Error_lineal, linestyle='--', label="Interpolador lineal")
-
-ax.legend(loc='best')
 if __name__ == "__main__":
+
+    fig, ax = plt.subplots()
+    ax.set_xlabel('Coordenadas interpoladas')
+    ax.set_ylabel('Error absoluto')
+
+
+    ax.plot(x_interpolate, Error_lagrange, linestyle='--', label="Lagrange")
+    ax.plot(x_interpolate, Error_Spline, linestyle='--', label="Interpolador cubico")
+    ax.plot(x_interpolate, Error_lineal, linestyle='--', label="Interpolador lineal")
+
+    ax.legend(loc='best')
+
+
     plt.show()
 
 
