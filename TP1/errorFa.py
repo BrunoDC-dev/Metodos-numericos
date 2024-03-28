@@ -49,9 +49,9 @@ Error_Spline= []
 Error_lineal = []
 
 for i in range(len(y_originalFunction)):
-    Error_lagrange.append(abs(y_originalFunction[i]- y_lagrange[i]))
-    Error_Spline.append(abs(y_originalFunction[i]- y_spline[i]))
-    Error_lineal.append(abs(y_originalFunction[i]- y_lineal[i]))
+    Error_lagrange.append(abs(y_originalFunction[i]- y_lagrange[i])/abs(y_originalFunction[i]))
+    Error_Spline.append(abs(y_originalFunction[i]- y_spline[i])/abs(y_originalFunction[i]))
+    Error_lineal.append(abs(y_originalFunction[i]- y_lineal[i])/abs(y_originalFunction[i]))
 
 
 
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     fig, ax = plt.subplots()
     ax.set_xlabel('Coordenadas interpoladas')
-    ax.set_ylabel('Error absoluto')
+    ax.set_ylabel('Error relativo')
 
 
     ax.plot(x_interpolate, Error_lagrange, linestyle='--', label="Lagrange")
@@ -70,7 +70,3 @@ if __name__ == "__main__":
 
 
     plt.show()
-
-
-
-
