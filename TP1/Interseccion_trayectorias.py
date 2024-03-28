@@ -9,9 +9,10 @@ ground_truth_data = pd.read_csv('mnyo_ground_truth.csv', header=None, sep='\s+')
 mediciones2_data = pd.read_csv('mnyo_mediciones2.csv', header=None, sep='\s+')
 
 # Create an array of equispaced time points
-time_points_mediciones1 = np.arange(1, mediciones1_data.shape[0] + 1)
-time_points_mediciones2= np.arange(1, mediciones2_data.shape[0] + 1)
-time_points_ground_truth = np.arange(1, ground_truth_data.shape[0] + 1)
+time_points_mediciones1 = np.linspace(0, 9, mediciones1_data.shape[0])
+time_points_ground_truth = np.linspace(0, 9, ground_truth_data.shape[0])
+time_points_mediciones2= np.linspace(0,3, mediciones2_data.shape[0] )
+time_points_mediciones2_interpolation= np.linspace(0,3,100)
 
 # Interpolate the positions using cubic splines
 mediciones1_interpolator_x = CubicSpline(time_points_mediciones1, mediciones1_data.iloc[:, 0])
@@ -24,18 +25,15 @@ ground_truth_interpolator_x = CubicSpline(time_points_ground_truth, ground_truth
 ground_truth_interpolator_y = CubicSpline(time_points_ground_truth, ground_truth_data.iloc[:, 1])
 
 # Interpolate the positions at the common time points
-common_time_points_mediciones1 = np.linspace(time_points_mediciones1.min(), time_points_mediciones1.max(), num=1000)
-m1x1_interpolated = mediciones1_interpolator_x(common_time_points_mediciones1)
-m1x2_interpolated = mediciones1_interpolator_y(common_time_points_mediciones1)
+m1x1_interpolated = mediciones1_interpolator_x(time_points_ground_truth)
+m1x2_interpolated = mediciones1_interpolator_y(time_points_ground_truth)
 
-common_time_points_mediciones2 = np.linspace(time_points_mediciones2.min(), time_points_mediciones2.max(), num=1000)
-m2x1_interpolated = mediciones2_interpolator_x(common_time_points_mediciones2)
-m2x2_interpolated = mediciones2_interpolator_y(common_time_points_mediciones2)
+m2x1_interpolated = mediciones2_interpolator_x(time_points_mediciones2_interpolation)
+m2x2_interpolated = mediciones2_interpolator_y(time_points_mediciones2_interpolation)
 
-common_time_points_ground_truth = np.linspace(time_points_ground_truth.min(), time_points_ground_truth.max(), num=1000)
 
-ground_truth_x1_interpolated = ground_truth_interpolator_x(common_time_points_ground_truth)
-ground_truth_x2_interpolated = ground_truth_interpolator_y(common_time_points_ground_truth)
+ground_truth_x1_interpolated = ground_truth_interpolator_x(time_points_ground_truth)
+ground_truth_x2_interpolated = ground_truth_interpolator_y(time_points_ground_truth)
 
 # Derivatives
 mediciones1_interpolator_x_derivative = mediciones1_interpolator_x.derivative()
@@ -61,7 +59,7 @@ def intersection_ground_truth_mediciones2_y(s1, s2):
     return ground_truth_interpolator_y(s1) - mediciones2_interpolator_y(s2)
 
 # Newton's method for finding intersection points
-def newton_method_intersection(fx1, fx2, s1, s2, f1x1d, f1x2d ,f2x1d, f2x2d, max_iterations=1000, tol=0.005):
+def newton_method_intersection(fx1, fx2, s1, s2, f1x1d, f1x2d ,f2x1d, f2x2d, max_iterations=10000, tol=0.005):
     for i in range(max_iterations):
         # Evaluate the function and its Jacobian at s1, s2
         f_values = np.array([fx1(s1, s2), fx2(s1, s2)])
@@ -86,7 +84,7 @@ def newton_method_intersection(fx1, fx2, s1, s2, f1x1d, f1x2d ,f2x1d, f2x2d, max
     return s1, s2
 
 # Find intersection points
-s1, s2 = newton_method_intersection(intersection_mediciones1_mediciones2_x, intersection_mediciones1_mediciones2_y, 1, 1, mediciones1_interpolator_x_derivative, mediciones1_interpolator_y_derivative, mediciones2_interpolator_x_derivative, mediciones2_interpolator_y_derivative)
+s1, s2 = newton_method_intersection(intersection_mediciones1_mediciones2_x, intersection_mediciones1_mediciones2_y, 3, 1, mediciones1_interpolator_x_derivative, mediciones1_interpolator_y_derivative, mediciones2_interpolator_x_derivative, mediciones2_interpolator_y_derivative)
 x1, y1 = mediciones1_interpolator_x(s1), mediciones1_interpolator_y(s1)
 x2, y2 = mediciones2_interpolator_x(s2), mediciones2_interpolator_y(s2)
 
@@ -95,7 +93,8 @@ print('s1 =', s1, 's2 =', s2)
 print('x1 =', x1, 'y1 =', y1)
 print('x2 =', x2, 'y2 =', y2)
 
-t1, t2 = newton_method_intersection(intersection_ground_truth_mediciones2_x, intersection_ground_truth_mediciones2_y, 15, 3, ground_truth_interpolator_x_derivative, ground_truth_interpolator_y_derivative, mediciones2_interpolator_x_derivative, mediciones2_interpolator_y_derivative)
+t1, t2 = newton_method_intersection(intersection_ground_truth_mediciones2_x, intersection_ground_truth_mediciones2_y,
+                                     5, 2, ground_truth_interpolator_x_derivative, ground_truth_interpolator_y_derivative, mediciones2_interpolator_x_derivative, mediciones2_interpolator_y_derivative)
 gx1, gy1 = ground_truth_interpolator_x(t1), ground_truth_interpolator_y(t1)
 mx2, my2 = mediciones2_interpolator_x(t2), mediciones2_interpolator_y(t2)
 
