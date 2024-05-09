@@ -5,8 +5,8 @@ from methods import runge_kutta_4_system
 def lotka_volterra(t, X, r1, r2, K1, K2, alpha12, alpha21):
     """Sistema de ecuaciones de Lotka-Volterra para competencia"""
     N1, N2 = X
-    dN1_dt = r1 * N1 * (1 - N1 / K1 - alpha12 * N2 / K1)
-    dN2_dt = r2 * N2 * (1 - N2 / K2 - alpha21 * N1 / K2)
+    dN1_dt = r1 * N1 * ((K1 -N1 - alpha12 * N2) / K1)
+    dN2_dt = r2 * N2 * ((K2-N2 - alpha21*N1) / K2)
     return np.array([dN1_dt, dN2_dt])
 
 # Parámetros
@@ -23,19 +23,44 @@ X0 = np.array([float(N1_0), float(N2_0)])
 X = runge_kutta_4_system(lotka_volterra, t, X0, args=(r1, r2, K1, K2, alpha12, alpha21))
 N1, N2 = X.T
 
+
+N1_value = np.linspace(0,K1+10,100)
+N2_value = np.linspace(0,K2+10,100)
+
+N1_isocline = (K1-N1_value)/alpha12
+N2_isocline = (K2-N2_value)/alpha21
+
+N1_gird , N2_grid = np.meshgrid(N1_value,N2_value)
+dN1_dt, dN2_dt = lotka_volterra(0, [N1_gird, N2_grid], r1, r2, K1, K2, alpha12, alpha21)
+
+
 # Gráficas
 plt.figure(figsize=(10, 6))
-plt.subplot(2, 1, 1)
+plt.subplot(2, 2, 1)
 plt.plot(t, N1, label='Especie 1')
 plt.plot(t, N2, label='Especie 2')
 plt.xlabel('Tiempo')
 plt.ylabel('Población')
 plt.legend()
 
-plt.subplot(2, 1, 2)
+plt.subplot(2, 2, 2)
 plt.plot(N1, N2)
 plt.xlabel('Población Especie 1')
 plt.ylabel('Población Especie 2')
+
+plt.subplot(2, 2, 3)
+plt.plot(N1_value, N1_isocline, 'r--', label='Isoclinas')
+plt.plot(N2_value, N2_isocline, 'b--', label='Isoclinas')
+plt.legend()
+plt.xlabel('Población Especie 1')
+plt.ylabel('Población Especie 2')
+
+plt.subplot(2, 2, 4)
+plt.streamplot(N1_gird, N2_grid, dN1_dt, dN2_dt)
+plt.xlabel('Población Especie 1')
+plt.ylabel('Población Especie 2')
+plt.title('Diagrama de fase')
+
 
 plt.tight_layout()
 plt.show()

@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from methods import euler_method,runge_kutta_4
 
 # Parámetros
-N0 = 10  # Condición inicial
+N0 =10  # Condición inicial
 r = 0.1  # Tasa de crecimiento
-K = 100  # Capacidad de carga
+K = 50  # Capacidad de carga
 # Tiempo
-t = np.linspace(0, 150, 1500)
+t = np.linspace(0, 10, 500)
 h = t[1] - t[0]  # Paso de tiempoh = t[1] - t[0]  # Paso de tiempo
 n = len(t)  # Número de puntos
 def modelo_exponencial(N0, t , r=r,):
@@ -57,74 +57,91 @@ derivate_log_simple = logistic_derivative(N0, t)
 # Gráficas
 plt.figure(figsize=(10, 6))
 
-# # Modelo exponencial
-# plt.subplot(2, 2, 1)
-# plt.plot(t, N_exp, label='Exacta')
-# plt.plot(t, N_euler_exp, label='Euler')
-# plt.plot(t, N_rk_exp, label='Runge-Kutta')
-# plt.xlabel('Tiempo')
-# plt.ylabel('Población')
-# plt.title('Modelo exponencial')
-# plt.legend()
 
+#exacta grafiquen el tamaño poblacional en función del tiempo (N vs t) 
 
+plt.subplot(3,3 ,1)
+plt.plot(t, N_exp, label="Modelo exponencial exacta")
+plt.xlabel("Tiempo")
+plt.ylabel("Población")
+plt.legend()
+plt.title("Modelo exponencial Nvst")
 
-# plt.subplot(2, 2, 1)
-# plt.plot(t, N_exp, label='Exacta')
-# plt.plot(t, N_log, label='Exacta')
-# plt.xlabel('Tiempo')
-# plt.ylabel('Población')
-# plt.title('Modelo exponencial')
-# plt.legend()
+plt.subplot(3,3 ,2)
+plt.plot(t, N_rk_exp, label="Modelo exponencial RK4")
+plt.xlabel("Tiempo")
+plt.ylabel("Población")
+plt.legend()
+plt.title("Modelo exponencial RK4")
 
-# plt.subplot(2, 2, 1)
-# plt.plot(t,derivate_exp_simple, label='Derivada')
-# plt.plot(t,derivate_log_simple, label='Derivada')
-# plt.xlabel('Tiempo')
-# plt.ylabel('Población')
-# plt.title('Modelo exponencial')
-# plt.legend()
+plt.subplot(3,3 ,3)
+plt.plot(t, N_log, label="Modelo logístico exacta")
+plt.xlabel("Tiempo")
+plt.ylabel("Población")
+plt.legend()
+plt.title("Modelo logístico Nvst")
 
-
-
-# Modelo exponencial
-plt.subplot(2, 2, 1)
-plt.plot(t, N_exp, label='Exacta')
-plt.plot(t, N_euler_exp, label='Euler')
-plt.plot(t, N_rk_exp, label='Runge-Kutta')
-plt.xlabel('Tiempo')
-plt.ylabel('Población')
-plt.title('Modelo exponencial')
+plt.subplot(3,3 ,4)
+plt.plot(t, N_rk_log, label="Modelo logístico RK4")
+plt.xlabel("Tiempo")
+plt.ylabel("Población")
 plt.legend()
 
-# Modelo logístico
-plt.subplot(2, 2, 2)
-plt.plot(t, N_log, label='Exacta')
-plt.plot(t, N_euler_log, label='Euler')
-#plt.plot(t, N_rk_log, label='Runge-Kutta')
-plt.xlabel('Tiempo')
-plt.ylabel('Población')
-plt.title('Modelo logístico')
-plt.legend()
 
-plt.subplot(2, 2, 3)
-plt.plot(t, N_exp, label='Exacta')
-plt.plot(t, N_log, label='Exacta')
-plt.plot(t, N_euler_exp, label='Euler')
-plt.plot(t,N_euler_log , label='Euler')
-plt.xlabel('Tiempo')
-plt.ylabel('Población')
-plt.title('Modelos exponencial y logístico con método de Euler')
+
+#la variación poblacional en función dN/dt vs N ). 
+
+plt.subplot(3,3 ,5)
+plt.plot(N_exp, N_rk_exp, label="derivada exponencial")
+plt.xlabel("tasa de crecimiento")
+plt.ylabel("Población")
 plt.legend()
-plt.subplot(2, 2, 4)
-plt.plot(t, N_exp, label='Exacta')
-plt.plot(t, N_log, label='Exacta')
-plt.plot(t, N_rk_exp, label='Runge-Kutta')
-plt.plot(t, N_rk_log, label='Runge-Kutta')
-plt.xlabel('Tiempo')
-plt.ylabel('Población')
-plt.title('Modelos exponencial y logístico con método de Runge-Kutta')
+plt.title("Modelo exponencial dN/dt vs N")
+
+plt.subplot(3,3 ,6)
+plt.plot(N_log,N_rk_log, label="derivada logística")
+plt.xlabel("tasa de crecimiento")
+plt.ylabel("Población")
 plt.legend()
+plt.title("Modelo logístico dN/dt vs N")
+
+
+plt.subplot(3,3 ,7)
+plt.plot(t,N_exp, label="Modelo exponencial")
+plt.plot(t,N_log, label="Modelo logístico")
+plt.xlabel("Tiempo")
+plt.ylabel("Población")
+plt.legend()
+plt.title("Modelo exponencial vs logístico")
+
+
+# Define the population sizes and their rates of change
+N_values = np.linspace(0, 100, 500)
+t_values = np.linspace(0, 100, 500)
+
+# Create a grid of points
+N, t = np.meshgrid(N_values, t_values)
+
+# Calculate the rates of change at each point in the grid
+U_exp = np.ones_like(N)
+V_exp = diferencial_exponencial(N, t)
+U_log = np.ones_like(N)
+V_log = diferencial_logistico(N, t)
+
+# Create the stream plot for the exponential model
+plt.subplot(3, 3, 8)
+plt.streamplot(N, t, U_exp, V_exp, color='r')
+plt.xlabel('Población')
+plt.ylabel('Tiempo')
+plt.title('Diagrama de fases - Modelo exponencial')
+
+# Create the stream plot for the logistic model
+plt.subplot(3, 3, 9)
+plt.streamplot(N, t, U_log, V_log, color='b')
+plt.xlabel('Población')
+plt.ylabel('Tiempo')
+plt.title('Diagrama de fases - Modelo logístico')
+
 
 plt.tight_layout()
 plt.show()
